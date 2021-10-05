@@ -13,15 +13,15 @@
 
 
 const byte rows = 4; // rows
-const byte cols = 4; // columns
+const byte cols = 3; // columns
 char keys[rows][cols] = {
-{'1','2','3','A'},
-{'4','5','6','B'},
-{'7','8','9','C'},
-{'*','0','#','D'}
+  {'1', '2', '3'},
+  {'4', '5', '6'},
+  {'7', '8', '9'},
+  {'*', '0', '#'}
 };
-byte rowPins[rows] = {3, 4, 5, 6}; //connect to the row pinouts of the keypad
-byte colPins[cols] = {8, 9, 10, 11}; //connect to the column pinouts of the keypad
+byte rowPins[rows] = {17, 10, 6, 19}; //connect to the row pinouts of the keypad
+byte colPins[cols] = {9, 12, 16}; //connect to the column pinouts of the keypad
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, rows, cols);
 
 

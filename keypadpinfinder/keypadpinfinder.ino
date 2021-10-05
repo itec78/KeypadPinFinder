@@ -10,10 +10,11 @@
 // Copy and paste the code!
 
 
-
 int myPins[] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, A1, A2, A3, A4, A5};
 String keys = "1234567890*#ABCD";
+int buzzer = A0;
 bool debug = false;
+
 
 char arr[sizeof(myPins) / sizeof(myPins[0])][sizeof(myPins) / sizeof(myPins[0])];
 int numpins = sizeof(myPins) / sizeof(myPins[0]);
@@ -25,8 +26,6 @@ void setup() {
   Serial.println("Keypad pin finder");
   Serial.println("*****************");
   Serial.println();
-
-  //Serial.println("Press key '" + String(key[0]) + "'");
 
   //Set input pins
   for (byte i = 0; i < sizeof(myPins) / sizeof(myPins[0]); i++) {
@@ -48,6 +47,14 @@ String waitserialinput() {
       }
     }
   }
+}
+
+void beep(int delayms) {
+  pinMode(buzzer, OUTPUT);
+  digitalWrite(buzzer, HIGH);
+  delay(delayms);
+  digitalWrite(buzzer, LOW);
+  delay(delayms);
 }
 
 void printarray() {
@@ -74,6 +81,7 @@ void loop() {
 
   //Prompts for user defined key list
   Serial.println("Enter new keys list or empty to continue [" + keys + "]");
+  beep(1000);
 
   String usrkeys = waitserialinput();
   if (usrkeys != "") {
@@ -98,6 +106,8 @@ void loop() {
   while (ncouple < keys.length()) {
     bool pressed = false;
     Serial.println("Press key '" + String(key[ncouple]) + "' on keypad");
+
+    beep(100);
 
     while (not pressed) {
       for (byte a = 0; a < numpins - 1; a++) {
@@ -129,6 +139,7 @@ void loop() {
   Serial.println();
 
   //ok, time to process data
+  beep(100); beep(100); beep(100);
 
   if (debug) {
     printarray();
@@ -208,6 +219,72 @@ void loop() {
     printarray();
   }
 
+  //Sort
+  int sortrow = 0;
+  int sortcol = 0;
+  int transpose = -1;
+  for (byte p = 0; p < keys.length(); p++) {
+    for (byte a = 0; a < numrow; a++) {
+      for (byte b = 0; b < numcol; b++) {
+        if (arr[a][b] == key[p]) {
+          //Serial.println(String(key[p]) + " - " + String(a) + " " + String(b) + " - " + String(sortrow) + " " + String(sortcol));
+          if (a >= sortrow) {
+            for (byte i = 0; i < numcol; i++) {
+              char v = arr[a][i];
+              arr[a][i] = arr[sortrow][i];
+              arr[sortrow][i] = v;
+            }
+            char v = PinRow[a];
+            PinRow[a] = PinRow[sortrow];
+            PinRow[sortrow] = v;
+            sortrow++;
+          }
+          if (b >= sortcol) {
+            for (byte i = 0; i < numrow; i++) {
+              char v = arr[i][b];
+              arr[i][b] = arr[i][sortcol];
+              arr[i][sortcol] = v;
+            }
+            char v = PinCol[b];
+            PinCol[b] = PinCol[sortcol];
+            PinCol[sortcol] = v;
+            sortcol++;
+          }
+          if (transpose == -1) {
+            if (sortrow != sortcol) {
+              transpose = sortrow > sortcol;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  if (debug) {
+    printarray();
+  }
+
+  //Transpose
+  if (transpose) {
+    for (byte a = 0; a < numpins; a++) {
+      for (byte b = a; b < numpins; b++) {
+        char v = arr[a][b];
+        arr[a][b] = arr[b][a];
+        arr[b][a] = v;
+      }
+      char v = PinRow[a];
+      PinRow[a] = PinCol[a];
+      PinCol[a] = v;
+    }
+    int n = numrow;
+    numrow = numcol;
+    numcol = n;
+  }
+
+  if (debug) {
+    printarray();
+  }
+
 
   //Print code!!!
   String s, t;
@@ -226,7 +303,7 @@ void loop() {
       s = s + ",'" + String(arr[i][j]) + "'";
     }
     s.remove(0, 1);
-    t = t + ",\n{" + s + "}";
+    t = t + ",\n  {" + s + "}";
   }
   t.remove(0, 2);
   t.replace("''", "NULL");
@@ -270,8 +347,7 @@ void loop() {
   {'1','2','3'},
   {'4','5','6'},
   {'7','8','9'},
-  {'
-  #','0','*'}
+  {'#','0','*'}
   };
   byte rowPins[rows] = {5, 4, 3, 2}; //connect to the row pinouts of the keypad
   byte colPins[cols] = {8, 7, 6}; //connect to the column pinouts of the keypad
