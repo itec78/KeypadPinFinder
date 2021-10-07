@@ -106,7 +106,6 @@ void loop() {
 
 
 
-  String lastcouple = "";
   int ncouple = 0;
   //reset array
   for (byte a = 0; a < numpins; a++) {
@@ -119,7 +118,6 @@ void loop() {
   while (ncouple < keys.length()) {
     bool pressed = false;
     Serial.println("Press key '" + String(key[ncouple]) + "' on keypad");
-
     beep(100);
 
     while (not pressed) {
@@ -129,17 +127,12 @@ void loop() {
 
         for (byte b = a + 1; b < numpins; b++) {
           if (digitalRead(myPins[b]) == LOW) {
-
-            //Debounce
-            String couple = String(a) + " " + String(b);
-            if (couple != lastcouple) {
+            if (arr[a][b] == NULL) {
               Serial.println("Pins: " + String(myPins[a]) + " " + String(myPins[b]));
-              lastcouple = couple;
 
               arr[a][b] = key[ncouple];
               ncouple++;
               pressed = true;
-              //Serial.println("Press key '" + String(key[ncouple]) + "'");
             }
           }
         }
