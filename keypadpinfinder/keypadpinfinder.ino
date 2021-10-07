@@ -73,6 +73,19 @@ void printarray() {
   Serial.println();
 }
 
+bool delcross(byte a, byte b) {
+  arr[a][b] = NULL;
+  for (byte i = 0; i < numpins; i++) {
+    if (arr[a][i] != NULL) {
+      delcross(a, i);
+    }
+    if (arr[i][b] != NULL) {
+      delcross(i, b);
+    }
+  }
+}
+
+
 
 
 
@@ -156,14 +169,11 @@ void loop() {
     printarray();
   }
 
-  //delete duplicates
+  //Delete duplicates
   for (byte a = 0; a < numpins; a++) {
     for (byte b = a; b < numpins; b++) {
-      if (arr[a][b] != NULL) {
-        for (byte i = 0; i < numpins; i++) {
-          arr[b][i] = NULL;
-          arr[i][a] = NULL;
-        }
+      if (arr[a][b] != NULL and arr[b][a] != NULL) {
+        delcross(a, b);
       }
     }
   }
