@@ -28,7 +28,7 @@ void setup() {
   Serial.println();
 
   //Set input pins
-  for (byte i = 0; i < sizeof(myPins) / sizeof(myPins[0]); i++) {
+  for (byte i = 0; i < numpins; i++) {
     pinMode(myPins[i], INPUT_PULLUP);
     //Serial.println(String(i) + " " + myPins[i] + " " + digitalRead(myPins[i]));
   }
@@ -176,12 +176,12 @@ void loop() {
   }
 
   //Delete empty rows
-  int PinRow[sizeof(myPins) / sizeof(myPins[0])];
+  int PinRow[numpins];
   int numrow = 0;
 
-  for (byte a = 0; a < sizeof(myPins) / sizeof(myPins[0]); a++) {
+  for (byte a = 0; a < numpins; a++) {
     bool isempty = true;
-    for (byte b = 0; b < sizeof(myPins) / sizeof(myPins[0]); b++) {
+    for (byte b = 0; b < numpins; b++) {
       arr[numrow][b] = arr[a][b];
 
       if (arr[a][b] != NULL) {
@@ -198,12 +198,12 @@ void loop() {
   }
 
   //Delete empty columns
-  int PinCol[sizeof(myPins) / sizeof(myPins[0])];
+  int PinCol[numpins];
   int numcol = 0;
 
-  for (byte b = 0; b < sizeof(myPins) / sizeof(myPins[0]); b++) {
+  for (byte b = 0; b < numpins; b++) {
     bool isempty = true;
-    for (byte a = 0; a < sizeof(myPins) / sizeof(myPins[0]); a++) {
+    for (byte a = 0; a < numpins; a++) {
       arr[a][numcol] = arr[a][b] ;
       if (arr[a][b] != NULL) {
         isempty = false;
