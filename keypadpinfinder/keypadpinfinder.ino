@@ -12,7 +12,8 @@
 
 int myPins[] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, A1, A2, A3, A4, A5};
 String keys = "1234567890*#ABCD";
-int buzzer = A0;
+int buzzerpin = A0;
+int buzzerstate = HIGH;
 bool debug = false;
 
 
@@ -27,6 +28,9 @@ void setup() {
   Serial.println("*****************");
   Serial.println();
 
+  pinMode(buzzerpin, OUTPUT);
+  digitalWrite(buzzerpin, buzzerstate);
+  
   //Set input pins
   for (byte i = 0; i < numpins; i++) {
     pinMode(myPins[i], INPUT_PULLUP);
@@ -50,10 +54,9 @@ String waitserialinput() {
 }
 
 void beep(int delayms) {
-  pinMode(buzzer, OUTPUT);
-  digitalWrite(buzzer, HIGH);
+  digitalWrite(buzzerpin, not buzzerstate);
   delay(delayms);
-  digitalWrite(buzzer, LOW);
+  digitalWrite(buzzerpin, buzzerstate);
   delay(delayms);
 }
 
