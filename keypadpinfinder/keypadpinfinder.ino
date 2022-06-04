@@ -14,6 +14,7 @@ int myPins[] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, A1, A2, A3, A4, A5};
 String keys = "1234567890*#ABCD";
 int buzzerpin = A0;
 int buzzerstate = HIGH;
+char shortcircuit = '`';
 bool debug = false;
 
 
@@ -30,7 +31,7 @@ void setup() {
 
   pinMode(buzzerpin, OUTPUT);
   digitalWrite(buzzerpin, buzzerstate);
-  
+
   //Set input pins
   for (byte i = 0; i < numpins; i++) {
     pinMode(myPins[i], INPUT_PULLUP);
@@ -106,8 +107,7 @@ void loop() {
   Serial.println(keys);
   char key[keys.length() + 1];
   keys.toCharArray(key, keys.length() + 1);
-
-
+  Serial.println();
 
   int ncouple = 0;
   //reset array
@@ -115,6 +115,27 @@ void loop() {
     for (byte b = 0; b < numpins; b++) {
       arr[a][b] = NULL;
     }
+  }
+
+  //Find short circuits
+  Serial.println("Short circuits:");
+  for (byte a = 0; a < numpins - 1; a++) {
+    pinMode(myPins[a], OUTPUT);
+    digitalWrite(myPins[a], LOW);
+    for (byte b = a + 1; b < numpins; b++) {
+      if (digitalRead(myPins[b]) == LOW) {
+        Serial.println("Pins: " + String(myPins[a]) + " " + String(myPins[b]));
+        arr[a][b] = shortcircuit;
+      }
+    }
+    pinMode(myPins[a], INPUT_PULLUP);
+  }
+  Serial.println();
+
+
+
+  if (debug) {
+    printarray();
   }
 
   //Loop setting one pin to output
@@ -152,6 +173,15 @@ void loop() {
 
   if (debug) {
     printarray();
+  }
+
+  //Delete short circuit
+  for (byte a = 0; a < numpins; a++) {
+    for (byte b = a; b < numpins; b++) {
+      if (arr[a][b] == shortcircuit) {
+        arr[a][b] = NULL;
+      }
+    }
   }
 
   //Fill diagonal
